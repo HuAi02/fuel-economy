@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0">
+<title>Family Fuel Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800&family=Nunito+Sans:wght@400;600;700&family=Noto+Sans+SC:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FAF6EE;
+    --panel:#FFFFFF;
+    --ink:#233240;
+    --ink-soft:#5B6B77;
+    --petrol:#1F3B4D;
+    --petrol-dark:#152933;
+    --amber:#E8963D;
+    --amber-soft:#FBEBD4;
+    --green:#4C7A5E;
+    --green-soft:#E4F0E8;
+    --red:#B5473C;
+    --line:#E7DFCF;
+    --radius:18px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Nunito Sans', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+    font-size:19px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:60px;
+  }
+  h1,h2,h3, .display{
+    font-family:'Nunito', 'Noto Sans SC', system-ui, sans-serif;
+    font-weight:800;
+    color:var(--petrol-dark);
+    letter-spacing:-0.01em;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:0 18px;}
+
+  /* ---------- Header ---------- */
+  header{
+    background:var(--petrol);
+    color:#fff;
+    padding:22px 0 30px;
+    border-bottom:6px solid var(--amber);
+  }
+  .header-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:12px;
+  }
+  header h1{
+    color:#fff;
+    font-size:1.55rem;
+    margin:0 0 4px;
+  }
+  header p{
+    margin:0;
+    color:#CBDAE1;
+    font-size:0.98rem;
+  }
+  .lang-btn{
+    flex:0 0 auto;
+    background:rgba(255,255,255,0.12);
+    border:2px solid rgba(255,255,255,0.4);
+    color:#fff;
+    border-radius:999px;
+    padding:9px 16px;
+    font-family:'Nunito','Noto Sans SC',sans-serif;
+    font-weight:800;
+    font-size:0.95rem;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+
+  /* ---------- Profile tabs ---------- */
+  .profiles{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:18px;
+  }
+  .profile-btn{
+    padding:11px 18px;
+    border-radius:999px;
+    border:2px solid rgba(255,255,255,0.35);
+    background:rgba(255,255,255,0.08);
+    color:#fff;
+    font-family:'Nunito','Noto Sans SC',sans-serif;
+    font-weight:700;
+    font-size:1rem;
+    cursor:pointer;
+  }
+  .profile-btn.active{
+    background:var(--amber);
+    border-color:var(--amber);
+    color:var(--petrol-dark);
+  }
+  .profile-btn.add{
+    background:transparent;
+    border-style:dashed;
+  }
+
+  /* ---------- Section nav (Log / Trends) ---------- */
+  .section-nav{
+    display:flex;
+    gap:8px;
+    margin-top:14px;
+  }
+  .nav-btn{
+    flex:1;
+    padding:10px 14px;
+    border-radius:12px;
+    border:2px solid rgba(255,255,255,0.3);
+    background:transparent;
+    color:#CBDAE1;
+    font-family:'Nunito','Noto Sans SC',sans-serif;
+    font-weight:700;
+    font-size:0.98rem;
+    cursor:pointer;
+  }
+  .nav-btn.active{
+    background:#fff;
+    color:var(--petrol-dark);
+    border-color:#fff;
+  }
+
+  /* ---------- Layout ---------- */
+  main{margin-top:-14px;}
+  .card{
+    background:var(--panel);
+    border-radius:var(--radius);
+    padding:22px;
+    box-shadow:0 6px 20px rgba(31,59,77,0.08);
+    margin-bottom:18px;
+    border:1px solid var(--line);
+  }
+  .view{display:none;}
+  .view.active{display:block;}
+
+  /* ---------- Gauge summary ---------- */
+  .summary-card{
+    display:flex;
+    gap:20px;
+    align-items:center;
+  }
+  .gauge-box{flex:0 0 auto;}
+  .stats{flex:1;min-width:0;}
+  .stat-row{
+    display:flex;
+    justify-content:space-between;
+    padding:6px 0;
+    border-bottom:1px dashed var(--line);
+    font-size:1rem;
+  }
+  .stat-row:last-child{border-bottom:none;}
+  .stat-row .label{color:var(--ink-soft);}
+  .stat-row .value{font-weight:700;color:var(--petrol-dark);}
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    width:100%;
+    padding:18px 20px;
+    border-radius:14px;
+    border:none;
+    font-family:'Nunito','Noto Sans SC',sans-serif;
+    font-weight:800;
+    font-size:1.15rem;
+    cursor:pointer;
+    min-height:56px;
+  }
+  .btn-primary{background:var(--amber);color:var(--petrol-dark);}
+  .btn-primary:active{background:#d98b28;}
+  .btn-secondary{
+    background:var(--panel);
+    color:var(--petrol);
+    border:2px solid var(--petrol);
+  }
+  .btn-text{
+    background:none;border:none;color:var(--petrol);
+    font-weight:700;font-size:0.95rem;text-decoration:underline;
+    cursor:pointer;padding:8px;width:auto;
+    font-family:inherit;
+  }
+
+  /* ---------- Form ---------- */
+  .field{margin-bottom:16px;}
+  label{display:block;font-weight:700;color:var(--petrol-dark);margin-bottom:6px;font-size:1rem;}
+  input[type=text], input[type=date], input[type=number]{
+    width:100%;
+    padding:14px 14px;
+    border-radius:12px;
+    border:2px solid var(--line);
+    font-size:1.15rem;
+    font-family:inherit;
+    background:#fff;
+    color:var(--ink);
+  }
+  input:focus{outline:3px solid var(--amber-soft);border-color:var(--amber);}
+  .hint{font-size:0.9rem;color:var(--ink-soft);margin-top:5px;}
+  .price-note{
+    background:var(--green-soft);
+    color:#2E4A3A;
+    border-radius:12px;
+    padding:12px 14px;
+    font-size:0.95rem;
+    margin-bottom:16px;
+  }
+  .price-note.warn{background:var(--amber-soft);color:#6B4A16;}
+
+  /* ---------- History ---------- */
+  .entry{
+    border-bottom:1px solid var(--line);
+    padding:14px 0;
+  }
+  .entry:last-child{border-bottom:none;}
+  .entry-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:10px;
+  }
+  .entry-date{font-weight:800;color:var(--petrol-dark);font-size:1.05rem;}
+  .entry-econ{
+    font-weight:800;
+    color:var(--green);
+    font-size:1.05rem;
+    white-space:nowrap;
+  }
+  .entry-sub{
+    color:var(--ink-soft);
+    font-size:0.95rem;
+    margin-top:3px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:4px 14px;
+  }
+  .entry-actions{margin-top:8px;}
+  .empty{
+    text-align:center;
+    color:var(--ink-soft);
+    padding:30px 10px;
+  }
+
+  /* ---------- Trends ---------- */
+  .trend-toggle{
+    display:flex;
+    gap:8px;
+    margin-bottom:18px;
+  }
+  .trend-toggle button{
+    flex:1;
+    padding:11px;
+    border-radius:12px;
+    border:2px solid var(--petrol);
+    background:#fff;
+    color:var(--petrol);
+    font-family:'Nunito','Noto Sans SC',sans-serif;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .trend-toggle button.active{
+    background:var(--petrol);
+    color:#fff;
+  }
+  .trend-insight{
+    background:var(--green-soft);
+    color:#2E4A3A;
+    border-radius:12px;
+    padding:14px;
+    font-weight:700;
+    margin-top:14px;
+    text-align:center;
+  }
+  .trend-insight.down{background:#FBE7E4;color:#7A2E24;}
+  .trend-insight.flat{background:var(--amber-soft);color:#6B4A16;}
+  .legend{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    margin-top:14px;
+    font-size:0.92rem;
+  }
+  .legend-item{display:flex;align-items:center;gap:6px;}
+  .legend-dot{width:12px;height:12px;border-radius:50%;}
+
+  /* ---------- Modal ---------- */
+  .modal-backdrop{
+    position:fixed;inset:0;
+    background:rgba(21,41,51,0.55);
+    display:none;
+    align-items:flex-end;
+    justify-content:center;
+    z-index:50;
+  }
+  .modal-backdrop.open{display:flex;}
+  .modal{
+    background:var(--paper);
+    width:100%;
+    max-width:760px;
+    max-height:92vh;
+    overflow-y:auto;
+    border-radius:22px 22px 0 0;
+    padding:22px 20px 30px;
+  }
+  .modal h2{margin-top:0;}
+  .modal-close{
+    float:right;
+    background:none;border:none;
+    font-size:1.5rem;color:var(--ink-soft);
+    cursor:pointer;
+  }
+
+  footer{
+    text-align:center;
+    color:var(--ink-soft);
+    font-size:0.85rem;
+    margin-top:24px;
+  }
+  .footer-actions{
+    display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:6px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="header-top">
+      <div>
+        <h1 data-i18n="appTitle">⛽ 家庭油耗记录</h1>
+        <p data-i18n="appSubtitle">记录加油、里程和 BUDI95 补贴省下的钱 — 全家共用。</p>
+      </div>
+      <button class="lang-btn" id="langBtn">EN</button>
+    </div>
+    <div class="profiles" id="profileTabs"></div>
+    <div class="section-nav">
+      <button class="nav-btn active" id="navLogBtn" data-i18n="navLog">记录</button>
+      <button class="nav-btn" id="navTrendsBtn" data-i18n="navTrends">趋势</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- LOG VIEW -->
+  <div class="view active" id="logView">
+    <div class="card summary-card">
+      <div class="gauge-box">
+        <svg id="gaugeSvg" width="130" height="90" viewBox="0 0 130 90"></svg>
+      </div>
+      <div class="stats" id="statsBox"></div>
+    </div>
+
+    <button class="btn btn-primary" id="openAddBtn" data-i18n="addFillup">＋ 添加加油记录</button>
+
+    <div class="card" style="margin-top:18px;">
+      <h2 style="margin-top:0;" data-i18n="historyHeading">历史记录</h2>
+      <div id="historyList"></div>
+    </div>
+  </div>
+
+  <!-- TRENDS VIEW -->
+  <div class="view" id="trendsView">
+    <div class="card">
+      <h2 style="margin-top:0;" data-i18n="trendsHeading">燃油经济性趋势</h2>
+      <div class="trend-toggle">
+        <button class="active" id="trendModeSelf" data-i18n="trendModeSelf">本人</button>
+        <button id="trendModeAll" data-i18n="trendModeAll">比较全部成员</button>
+      </div>
+      <div id="trendChartBox"></div>
+      <div id="trendLegend" class="legend"></div>
+      <div id="trendInsight"></div>
+    </div>
+  </div>
+
+  <footer>
+    <div data-i18n="footerNote">数据仅保存在此设备/浏览器上，按成员分别存储。</div>
+    <div class="footer-actions">
+      <button class="btn-text" id="exportBtn" data-i18n="exportBtn">下载备份（CSV）</button>
+      <button class="btn-text" id="renameBtn" data-i18n="renameBtn">重命名此成员</button>
+    </div>
+  </footer>
+</main>
+
+<!-- Add entry modal -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <button class="modal-close" id="closeModalBtn" aria-label="Close">×</button>
+    <h2 data-i18n="modalTitle">新增加油记录</h2>
+
+    <div class="field">
+      <label for="f_date" data-i18n="fieldDate">日期</label>
+      <input type="date" id="f_date">
+    </div>
+
+    <div class="field">
+      <label for="f_odo" data-i18n="fieldOdo">里程表读数（公里）</label>
+      <input type="number" inputmode="decimal" id="f_odo">
+      <div class="hint" id="odoHint"></div>
+    </div>
+
+    <div class="field">
+      <label for="f_paid" data-i18n="fieldPaid">支付金额（RM）</label>
+      <input type="number" inputmode="decimal" id="f_paid">
+    </div>
+
+    <div class="field">
+      <label for="f_price" data-i18n="fieldPrice">每公升油价（RM）</label>
+      <input type="number" inputmode="decimal" id="f_price" step="0.01" value="1.99">
+      <div class="hint" data-i18n="fieldPriceHint">默认是 BUDI95 补贴价。如果您支付了不同价格，请修改。</div>
+    </div>
+
+    <div class="price-note" id="marketPriceNote"></div>
+
+    <button class="btn btn-primary" id="saveEntryBtn" data-i18n="saveBtn">保存记录</button>
+  </div>
+</div>
+
+<script>
+/* ==================== i18n ==================== */
+const STRINGS = {
+  zh: {
+    appTitle: '⛽ 家庭油耗记录',
+    appSubtitle: '记录加油、里程和 BUDI95 补贴省下的钱 — 全家共用。',
+    navLog: '记录', navTrends: '趋势',
+    addFillup: '＋ 添加加油记录',
+    historyHeading: '历史记录',
+    trendsHeading: '燃油经济性趋势',
+    trendModeSelf: '本人', trendModeAll: '比较全部成员',
+    footerNote: '数据仅保存在此设备/浏览器上，按成员分别存储。',
+    exportBtn: '下载备份（CSV）', renameBtn: '重命名此成员',
+    modalTitle: '新增加油记录',
+    fieldDate: '日期', fieldOdo: '里程表读数（公里）',
+    fieldPaid: '支付金额（RM）', fieldPrice: '每公升油价（RM）',
+    fieldPriceHint: '默认是 BUDI95 补贴价。如果您支付了不同价格，请修改。',
+    saveBtn: '保存记录',
+    addPerson: '+ 添加成员',
+    promptNewProfile: '为新成员/车辆命名（例如"爸爸"或"Toyota Vios"）：',
+    statTotalPaid: '总花费', statTotalKm: '总里程', statTotalSaved: 'BUDI95 省下的钱',
+    gaugeNoData: '暂无数据',
+    entryOdo: '里程表：{v} 公里', entrySaved: '省下 RM {v}',
+    deleteEntry: '删除此记录', confirmDelete: '确定要删除这条加油记录吗？',
+    emptyHistory: '还没有加油记录，点击"添加加油记录"开始吧。',
+    odoLast: '上次记录：{v} 公里', odoFirst: '这将是您的第一条记录。',
+    checkingPrice: '正在查询今日市场油价，用于计算省下的金额…',
+    priceLive: '正在与今日市场油价比较：RM {price}/L（{date} 那一周）。',
+    priceCache: '无法查询今日油价 — 使用上次保存的价格：RM {price}/L。省下金额可能略有误差。',
+    priceNone: '无法查询今日市场油价。您的加油记录仍会保存，只是没有省下金额。',
+    alertDate: '请选择日期。', alertOdo: '请输入里程表读数。', alertPaid: '请输入支付金额。',
+    confirmOdo: '{odo} 公里 不大于上次读数（{last} 公里）。仍要保存吗？',
+    renamePrompt: '"{name}" 的新名称：', nameTaken: '该名称已被使用。',
+    trendNotEnough: '数据还不够，多添加几次加油记录后即可查看趋势。',
+    trendUp: '📈 燃油经济性正在改善（较早期提升 {pct}%）',
+    trendDown: '📉 燃油经济性有所下降（较早期下降 {pct}%）',
+    trendFlat: '➡️ 燃油经济性保持稳定',
+    langBtnLabel: 'EN',
+  },
+  en: {
+    appTitle: '⛽ Family Fuel Log',
+    appSubtitle: 'Track fill-ups, mileage and BUDI95 savings — for the whole family.',
+    navLog: 'Log', navTrends: 'Trends',
+    addFillup: '＋ Add a fill-up',
+    historyHeading: 'History',
+    trendsHeading: 'Fuel economy trends',
+    trendModeSelf: 'This profile', trendModeAll: 'Compare all',
+    footerNote: 'Data is stored only on this device/browser, per profile.',
+    exportBtn: 'Download backup (CSV)', renameBtn: 'Rename this profile',
+    modalTitle: 'New fill-up',
+    fieldDate: 'Date', fieldOdo: 'Odometer reading (km)',
+    fieldPaid: 'Amount paid (RM)', fieldPrice: 'Price paid per litre (RM)',
+    fieldPriceHint: "Default is the subsidised BUDI95 price. Change it if you paid a different price.",
+    saveBtn: 'Save fill-up',
+    addPerson: '+ Add person',
+    promptNewProfile: 'Name for the new profile (e.g. "Dad" or "Toyota Vios"):',
+    statTotalPaid: 'Total spent', statTotalKm: 'Distance logged', statTotalSaved: 'Saved with BUDI95',
+    gaugeNoData: 'No data',
+    entryOdo: '{v} km on odometer', entrySaved: 'Saved RM {v}',
+    deleteEntry: 'Delete this entry', confirmDelete: 'Delete this fill-up entry?',
+    emptyHistory: 'No fill-ups yet. Tap "Add a fill-up" to start.',
+    odoLast: 'Last recorded: {v} km', odoFirst: 'This will be your first entry.',
+    checkingPrice: "Checking today's market price for the savings comparison…",
+    priceLive: "Comparing against today's market price: RM {price}/L (week of {date}).",
+    priceCache: "Couldn't check today's price — using the last saved price: RM {price}/L. Savings shown may be slightly off.",
+    priceNone: "Couldn't check today's market price. Your fill-up will still be saved — just without a savings figure.",
+    alertDate: 'Please pick a date.', alertOdo: 'Please enter the odometer reading.', alertPaid: 'Please enter the amount paid.',
+    confirmOdo: '{odo} km is not more than your last reading ({last} km). Save anyway?',
+    renamePrompt: 'New name for "{name}":', nameTaken: 'That name is already used.',
+    trendNotEnough: 'Not enough data yet — add a few more fill-ups to see a trend.',
+    trendUp: '📈 Fuel economy is improving ({pct}% better than earlier)',
+    trendDown: '📉 Fuel economy has dropped ({pct}% worse than earlier)',
+    trendFlat: '➡️ Fuel economy has stayed steady',
+    langBtnLabel: '中',
+  }
+};
+let currentLang = localStorage.getItem('fuel_lang_v1') || 'zh';
+function t(key, vars){
+  let s = (STRINGS[currentLang] && STRINGS[currentLang][key]) || key;
+  if(vars) Object.keys(vars).forEach(k => { s = s.replace('{' + k + '}', vars[k]); });
+  return s;
+}
+function applyStaticTranslations(){
+  document.documentElement.lang = currentLang === 'zh' ? 'zh' : 'en';
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.getAttribute('data-i18n'));
+  });
+  document.getElementById('langBtn').textContent = t('langBtnLabel');
+}
+document.getElementById('langBtn').onclick = () => {
+  currentLang = currentLang === 'zh' ? 'en' : 'zh';
+  localStorage.setItem('fuel_lang_v1', currentLang);
+  applyStaticTranslations();
+  renderAll();
+};
+
+/* ==================== Storage helpers ==================== */
+const PROFILES_KEY = 'fuel_profiles_v1';
+const entriesKey = (name) => 'fuel_entries_v1__' + name;
+const PRICE_CACHE_KEY = 'fuel_price_cache_v1';
+const FUEL_API_URL = 'https://api.data.gov.my/data-catalogue?id=fuelprice&filter=level@series_type&sort=-date&limit=1';
+const DEFAULT_BUDI95 = 1.99;
+const PALETTE = ['#1F3B4D', '#E8963D', '#4C7A5E', '#8E5572', '#3A7D8C', '#B5473C'];
+
+function loadProfiles(){
+  let list = JSON.parse(localStorage.getItem(PROFILES_KEY) || 'null');
+  if(!list || !list.length){
+    list = ['Dad', 'Mom'];
+    localStorage.setItem(PROFILES_KEY, JSON.stringify(list));
+  }
+  return list;
+}
+function saveProfiles(list){ localStorage.setItem(PROFILES_KEY, JSON.stringify(list)); }
+function loadEntries(profile){ return JSON.parse(localStorage.getItem(entriesKey(profile)) || '[]'); }
+function saveEntries(profile, entries){ localStorage.setItem(entriesKey(profile), JSON.stringify(entries)); }
+function profileColor(name){
+  const idx = profiles.indexOf(name);
+  return PALETTE[(idx >= 0 ? idx : 0) % PALETTE.length];
+}
+
+/* ==================== State ==================== */
+let profiles = loadProfiles();
+let currentProfile = localStorage.getItem('fuel_current_profile_v1') || profiles[0];
+if(!profiles.includes(currentProfile)) currentProfile = profiles[0];
+let currentView = 'log';       // 'log' | 'trends'
+let trendMode = 'self';        // 'self' | 'all'
+
+let marketPrice = null;
+let marketDate = null;
+
+/* ==================== Nav (Log / Trends) ==================== */
+document.getElementById('navLogBtn').onclick = () => { currentView = 'log'; renderAll(); };
+document.getElementById('navTrendsBtn').onclick = () => { currentView = 'trends'; renderAll(); };
+document.getElementById('trendModeSelf').onclick = () => { trendMode = 'self'; renderAll(); };
+document.getElementById('trendModeAll').onclick = () => { trendMode = 'all'; renderAll(); };
+
+/* ==================== Profile tabs ==================== */
+function renderProfileTabs(){
+  const box = document.getElementById('profileTabs');
+  box.innerHTML = '';
+  profiles.forEach(name => {
+    const b = document.createElement('button');
+    b.className = 'profile-btn' + (name === currentProfile ? ' active' : '');
+    b.textContent = name;
+    b.onclick = () => { currentProfile = name; localStorage.setItem('fuel_current_profile_v1', name); renderAll(); };
+    box.appendChild(b);
+  });
+  const addB = document.createElement('button');
+  addB.className = 'profile-btn add';
+  addB.textContent = t('addPerson');
+  addB.onclick = () => {
+    const name = prompt(t('promptNewProfile'));
+    if(name && name.trim() && !profiles.includes(name.trim())){
+      profiles.push(name.trim());
+      saveProfiles(profiles);
+      currentProfile = name.trim();
+      localStorage.setItem('fuel_current_profile_v1', currentProfile);
+      renderAll();
+    }
+  };
+  box.appendChild(addB);
+}
+
+/* ==================== Gauge ==================== */
+function renderGauge(avgKmPerL){
+  const svg = document.getElementById('gaugeSvg');
+  const max = 25;
+  const val = Math.max(0, Math.min(avgKmPerL || 0, max));
+  const angle = Math.PI - (val / max) * Math.PI;
+  const cx = 65, cy = 80, r = 58;
+  const nx = cx + r * Math.cos(angle);
+  const ny = cy - r * Math.sin(angle);
+  const arcPath = (a1, a2, color) => {
+    const x1 = cx + r * Math.cos(a1), y1 = cy - r * Math.sin(a1);
+    const x2 = cx + r * Math.cos(a2), y2 = cy - r * Math.sin(a2);
+    return `<path d="M ${x1} ${y1} A ${r} ${r} 0 0 1 ${x2} ${y2}" stroke="${color}" stroke-width="12" fill="none" stroke-linecap="round"/>`;
+  };
+  let html = '';
+  html += arcPath(Math.PI, Math.PI*2/3, '#E3B8A8');
+  html += arcPath(Math.PI*2/3, Math.PI/3, '#F3D9A6');
+  html += arcPath(Math.PI/3, 0, '#B9D8C4');
+  html += `<line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}" stroke="#1F3B4D" stroke-width="4" stroke-linecap="round"/>`;
+  html += `<circle cx="${cx}" cy="${cy}" r="6" fill="#1F3B4D"/>`;
+  html += `<text x="${cx}" y="${cy+22}" text-anchor="middle" font-family="Nunito" font-weight="800" font-size="13" fill="#233240">${avgKmPerL ? avgKmPerL.toFixed(1)+' km/L' : t('gaugeNoData')}</text>`;
+  svg.innerHTML = html;
+}
+
+/* ==================== Stats ==================== */
+function renderStats(){
+  const entries = loadEntries(currentProfile);
+  let totalPaid = 0, totalLitres = 0, totalKm = 0, totalSaved = 0, haveSavings = false;
+  entries.forEach(e => {
+    totalPaid += e.paid || 0;
+    totalLitres += e.litres || 0;
+    totalKm += e.km || 0;
+    if(e.saved !== null && e.saved !== undefined){ totalSaved += e.saved; haveSavings = true; }
+  });
+  const avgKmPerL = (totalKm > 0 && totalLitres > 0) ? (totalKm / totalLitres) : 0;
+  renderGauge(avgKmPerL);
+  const box = document.getElementById('statsBox');
+  box.innerHTML = `
+    <div class="stat-row"><span class="label">${t('statTotalPaid')}</span><span class="value">RM ${totalPaid.toFixed(2)}</span></div>
+    <div class="stat-row"><span class="label">${t('statTotalKm')}</span><span class="value">${totalKm.toFixed(0)} km</span></div>
+    <div class="stat-row"><span class="label">${t('statTotalSaved')}</span><span class="value">${haveSavings ? 'RM ' + totalSaved.toFixed(2) : '—'}</span></div>
+  `;
+}
+
+/* ==================== History list ==================== */
+function renderHistory(){
+  const entries = loadEntries(currentProfile).slice().sort((a,b) => b.date.localeCompare(a.date));
+  const list = document.getElementById('historyList');
+  if(!entries.length){
+    list.innerHTML = `<div class="empty">${t('emptyHistory')}</div>`;
+    return;
+  }
+  list.innerHTML = '';
+  entries.forEach(e => {
+    const row = document.createElement('div');
+    row.className = 'entry';
+    const econText = (e.kmPerL && e.kmPerL > 0) ? `${e.kmPerL.toFixed(1)} km/L` : '';
+    row.innerHTML = `
+      <div class="entry-top">
+        <span class="entry-date">${formatDate(e.date)}</span>
+        <span class="entry-econ">${econText}</span>
+      </div>
+      <div class="entry-sub">
+        <span>${t('entryOdo', {v: e.odo.toFixed(0)})}</span>
+        <span>RM ${e.paid.toFixed(2)}</span>
+        <span>${e.litres.toFixed(1)} L</span>
+        ${e.saved ? `<span>${t('entrySaved', {v: e.saved.toFixed(2)})}</span>` : ''}
+      </div>
+      <div class="entry-actions">
+        <button class="btn-text delete-btn" data-id="${e.id}">${t('deleteEntry')}</button>
+      </div>
+    `;
+    list.appendChild(row);
+  });
+  list.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.onclick = () => {
+      if(confirm(t('confirmDelete'))){
+        const id = btn.getAttribute('data-id');
+        const remaining = loadEntries(currentProfile).filter(e => e.id !== id);
+        saveEntries(currentProfile, remaining);
+        renderAll();
+      }
+    };
+  });
+}
+function formatDate(iso){
+  const d = new Date(iso + 'T00:00:00');
+  if(isNaN(d)) return iso;
+  return d.toLocaleDateString(currentLang === 'zh' ? 'zh-CN' : undefined, { day:'numeric', month:'short', year:'numeric' });
+}
+
+/* ==================== Odometer hint ==================== */
+function updateOdoHint(){
+  const entries = loadEntries(currentProfile).slice().sort((a,b) => b.date.localeCompare(a.date));
+  const hint = document.getElementById('odoHint');
+  hint.textContent = entries.length ? t('odoLast', {v: entries[0].odo.toFixed(0)}) : t('odoFirst');
+}
+
+/* ==================== Fetch market price ==================== */
+async function fetchMarketPrice(){
+  const note = document.getElementById('marketPriceNote');
+  note.className = 'price-note';
+  note.textContent = t('checkingPrice');
+  try{
+    const res = await fetch(FUEL_API_URL, { cache: 'no-store' });
+    const data = await res.json();
+    const row = Array.isArray(data) ? data[0] : (data && data.data ? data.data[0] : null);
+    if(row && row.ron95){
+      marketPrice = parseFloat(row.ron95);
+      marketDate = row.date || null;
+      localStorage.setItem(PRICE_CACHE_KEY, JSON.stringify({ price: marketPrice, date: marketDate }));
+      note.className = 'price-note';
+      note.textContent = t('priceLive', {price: marketPrice.toFixed(2), date: marketDate || ''});
+      return;
+    }
+    throw new Error('no data');
+  }catch(err){
+    const cached = JSON.parse(localStorage.getItem(PRICE_CACHE_KEY) || 'null');
+    if(cached && cached.price){
+      marketPrice = cached.price;
+      marketDate = cached.date;
+      note.className = 'price-note warn';
+      note.textContent = t('priceCache', {price: marketPrice.toFixed(2)});
+    } else {
+      marketPrice = null;
+      note.className = 'price-note warn';
+      note.textContent = t('priceNone');
+    }
+  }
+}
+
+/* ==================== Modal ==================== */
+const backdrop = document.getElementById('modalBackdrop');
+document.getElementById('openAddBtn').onclick = () => {
+  document.getElementById('f_date').value = new Date().toISOString().slice(0,10);
+  document.getElementById('f_odo').value = '';
+  document.getElementById('f_paid').value = '';
+  document.getElementById('f_price').value = DEFAULT_BUDI95;
+  updateOdoHint();
+  backdrop.classList.add('open');
+  fetchMarketPrice();
+};
+document.getElementById('closeModalBtn').onclick = () => backdrop.classList.remove('open');
+backdrop.onclick = (e) => { if(e.target === backdrop) backdrop.classList.remove('open'); };
+
+document.getElementById('saveEntryBtn').onclick = () => {
+  const date = document.getElementById('f_date').value;
+  const odo = parseFloat(document.getElementById('f_odo').value);
+  const paid = parseFloat(document.getElementById('f_paid').value);
+  const price = parseFloat(document.getElementById('f_price').value) || DEFAULT_BUDI95;
+
+  if(!date){ alert(t('alertDate')); return; }
+  if(isNaN(odo) || odo <= 0){ alert(t('alertOdo')); return; }
+  if(isNaN(paid) || paid <= 0){ alert(t('alertPaid')); return; }
+
+  const entries = loadEntries(currentProfile);
+  const prevEntries = entries.slice().sort((a,b) => a.date.localeCompare(b.date));
+  const lastOdo = prevEntries.length ? prevEntries[prevEntries.length - 1].odo : null;
+
+  if(lastOdo !== null && odo <= lastOdo){
+    if(!confirm(t('confirmOdo', {odo, last: lastOdo}))) return;
+  }
+
+  const km = lastOdo !== null ? Math.max(0, odo - lastOdo) : 0;
+  const litres = paid / price;
+  const kmPerL = km > 0 && litres > 0 ? km / litres : 0;
+  let saved = null;
+  if(marketPrice){
+    saved = (litres * marketPrice) - paid;
+  }
+
+  entries.push({
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+    date, odo, km, paid, price, litres, kmPerL, saved
+  });
+  saveEntries(currentProfile, entries);
+  backdrop.classList.remove('open');
+  renderAll();
+};
+
+/* ==================== Export CSV ==================== */
+document.getElementById('exportBtn').onclick = () => {
+  const entries = loadEntries(currentProfile).slice().sort((a,b) => a.date.localeCompare(b.date));
+  let csv = 'date,odometer_km,km_driven,amount_paid_rm,price_per_l_rm,litres,km_per_l,saved_rm\n';
+  entries.forEach(e => {
+    csv += [e.date, e.odo, e.km, e.paid.toFixed(2), e.price.toFixed(2), e.litres.toFixed(2), e.kmPerL.toFixed(2), e.saved !== null ? e.saved.toFixed(2) : ''].join(',') + '\n';
+  });
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `fuel-log-${currentProfile}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
+/* ==================== Rename profile ==================== */
+document.getElementById('renameBtn').onclick = () => {
+  const newName = prompt(t('renamePrompt', {name: currentProfile}), currentProfile);
+  if(newName && newName.trim() && newName.trim() !== currentProfile){
+    const nn = newName.trim();
+    if(profiles.includes(nn)){ alert(t('nameTaken')); return; }
+    const entries = loadEntries(currentProfile);
+    saveEntries(nn, entries);
+    localStorage.removeItem(entriesKey(currentProfile));
+    profiles = profiles.map(p => p === currentProfile ? nn : p);
+    saveProfiles(profiles);
+    currentProfile = nn;
+    localStorage.setItem('fuel_current_profile_v1', nn);
+    renderAll();
+  }
+};
+
+/* ==================== Trends ==================== */
+function renderTrendToggle(){
+  document.getElementById('trendModeSelf').className = trendMode === 'self' ? 'active' : '';
+  document.getElementById('trendModeAll').className = trendMode === 'all' ? 'active' : '';
+}
+
+function buildLineChartSVG(seriesList){
+  // seriesList: [{name, color, points:[{date, y}]}]
+  const W = 680, H = 260, padL = 42, padR = 16, padT = 16, padB = 34;
+  const allPoints = seriesList.flatMap(s => s.points);
+  if(allPoints.length < 2) return null;
+
+  const dates = allPoints.map(p => new Date(p.date + 'T00:00:00').getTime());
+  const minD = Math.min(...dates), maxD = Math.max(...dates);
+  const maxY = Math.max(...allPoints.map(p => p.y), 5);
+  const niceMaxY = Math.ceil(maxY / 5) * 5;
+
+  const xPos = (d) => {
+    const t = new Date(d + 'T00:00:00').getTime();
+    if(maxD === minD) return padL + (W - padL - padR) / 2;
+    return padL + ((t - minD) / (maxD - minD)) * (W - padL - padR);
+  };
+  const yPos = (v) => padT + (1 - v / niceMaxY) * (H - padT - padB);
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px;display:block;">`;
+  // gridlines + y labels
+  for(let i=0;i<=4;i++){
+    const v = niceMaxY * i / 4;
+    const y = yPos(v);
+    svg += `<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="#E7DFCF" stroke-width="1"/>`;
+    svg += `<text x="${padL-8}" y="${y+4}" text-anchor="end" font-size="11" fill="#5B6B77" font-family="Nunito Sans">${v.toFixed(0)}</text>`;
+  }
+  // x labels (first/last)
+  const firstDate = new Date(minD).toISOString().slice(0,10);
+  const lastDate = new Date(maxD).toISOString().slice(0,10);
+  svg += `<text x="${padL}" y="${H-10}" font-size="11" fill="#5B6B77" font-family="Nunito Sans">${firstDate}</text>`;
+  svg += `<text x="${W-padR}" y="${H-10}" text-anchor="end" font-size="11" fill="#5B6B77" font-family="Nunito Sans">${lastDate}</text>`;
+
+  seriesList.forEach(s => {
+    const pts = s.points.slice().sort((a,b) => a.date.localeCompare(b.date));
+    const path = pts.map((p,i) => `${i===0?'M':'L'} ${xPos(p.date).toFixed(1)} ${yPos(p.y).toFixed(1)}`).join(' ');
+    svg += `<path d="${path}" fill="none" stroke="${s.color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;
+    pts.forEach(p => {
+      svg += `<circle cx="${xPos(p.date).toFixed(1)}" cy="${yPos(p.y).toFixed(1)}" r="4" fill="${s.color}"/>`;
+    });
+  });
+  svg += '</svg>';
+  return svg;
+}
+
+function trendInsightFor(points){
+  const box = document.getElementById('trendInsight');
+  if(points.length < 4){
+    box.className = 'trend-insight flat';
+    box.textContent = t('trendNotEnough');
+    return;
+  }
+  const sorted = points.slice().sort((a,b) => a.date.localeCompare(b.date));
+  const mid = Math.floor(sorted.length / 2);
+  const firstHalf = sorted.slice(0, mid);
+  const secondHalf = sorted.slice(mid);
+  const avg = (arr) => arr.reduce((s,p) => s + p.y, 0) / arr.length;
+  const a1 = avg(firstHalf), a2 = avg(secondHalf);
+  const pct = a1 > 0 ? ((a2 - a1) / a1 * 100) : 0;
+
+  if(pct > 3){
+    box.className = 'trend-insight';
+    box.textContent = t('trendUp', {pct: pct.toFixed(0)});
+  } else if(pct < -3){
+    box.className = 'trend-insight down';
+    box.textContent = t('trendDown', {pct: Math.abs(pct).toFixed(0)});
+  } else {
+    box.className = 'trend-insight flat';
+    box.textContent = t('trendFlat');
+  }
+}
+
+function renderTrends(){
+  renderTrendToggle();
+  const chartBox = document.getElementById('trendChartBox');
+  const legendBox = document.getElementById('trendLegend');
+  const insightBox = document.getElementById('trendInsight');
+  legendBox.innerHTML = '';
+  insightBox.textContent = '';
+  insightBox.className = '';
+
+  if(trendMode === 'self'){
+    const entries = loadEntries(currentProfile).filter(e => e.kmPerL > 0);
+    const points = entries.map(e => ({date: e.date, y: e.kmPerL}));
+    const svg = buildLineChartSVG([{name: currentProfile, color: profileColor(currentProfile), points}]);
+    if(!svg){
+      chartBox.innerHTML = `<div class="empty">${t('trendNotEnough')}</div>`;
+      return;
+    }
+    chartBox.innerHTML = svg;
+    trendInsightFor(points);
+  } else {
+    const seriesList = profiles.map(name => {
+      const entries = loadEntries(name).filter(e => e.kmPerL > 0);
+      return { name, color: profileColor(name), points: entries.map(e => ({date: e.date, y: e.kmPerL})) };
+    }).filter(s => s.points.length > 0);
+
+    const combinedCount = seriesList.reduce((n,s) => n + s.points.length, 0);
+    if(combinedCount < 2 || seriesList.length === 0){
+      chartBox.innerHTML = `<div class="empty">${t('trendNotEnough')}</div>`;
+      return;
+    }
+    const svg = buildLineChartSVG(seriesList);
+    chartBox.innerHTML = svg || `<div class="empty">${t('trendNotEnough')}</div>`;
+    seriesList.forEach(s => {
+      const item = document.createElement('div');
+      item.className = 'legend-item';
+      item.innerHTML = `<span class="legend-dot" style="background:${s.color}"></span><span>${s.name}</span>`;
+      legendBox.appendChild(item);
+    });
+  }
+}
+
+/* ==================== Init / master render ==================== */
+function renderAll(){
+  applyStaticTranslations();
+  renderProfileTabs();
+
+  document.getElementById('navLogBtn').classList.toggle('active', currentView === 'log');
+  document.getElementById('navTrendsBtn').classList.toggle('active', currentView === 'trends');
+  document.getElementById('logView').classList.toggle('active', currentView === 'log');
+  document.getElementById('trendsView').classList.toggle('active', currentView === 'trends');
+
+  if(currentView === 'log'){
+    renderStats();
+    renderHistory();
+  } else {
+    renderTrends();
+  }
+}
+renderAll();
+</script>
+</body>
+</html>
